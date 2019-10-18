@@ -5,20 +5,29 @@ VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PowerPointTimer", "PowerPointTimer.csproj", "{9B4F5030-CA18-4991-8CF7-1E02864A9B21}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "PowerPointTimerSetup", "..\PowerPointTimerSetup\PowerPointTimerSetup.vdproj", "{EBB2B595-08B6-4035-8E8A-0BB1B901ABAE}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "PowerPointTimerInstaller", "..\PowerPointTimerInstaller\PowerPointTimerInstaller.vdproj", "{2345899C-96F5-4ACD-80C6-0BB480DDDA3D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{9B4F5030-CA18-4991-8CF7-1E02864A9B21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9B4F5030-CA18-4991-8CF7-1E02864A9B21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B4F5030-CA18-4991-8CF7-1E02864A9B21}.Debug|x64.ActiveCfg = Debug|x64
+		{9B4F5030-CA18-4991-8CF7-1E02864A9B21}.Debug|x64.Build.0 = Debug|x64
 		{9B4F5030-CA18-4991-8CF7-1E02864A9B21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9B4F5030-CA18-4991-8CF7-1E02864A9B21}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EBB2B595-08B6-4035-8E8A-0BB1B901ABAE}.Debug|Any CPU.ActiveCfg = Debug
-		{EBB2B595-08B6-4035-8E8A-0BB1B901ABAE}.Release|Any CPU.ActiveCfg = Release
+		{9B4F5030-CA18-4991-8CF7-1E02864A9B21}.Release|x64.ActiveCfg = Release|Any CPU
+		{9B4F5030-CA18-4991-8CF7-1E02864A9B21}.Release|x64.Build.0 = Release|Any CPU
+		{2345899C-96F5-4ACD-80C6-0BB480DDDA3D}.Debug|Any CPU.ActiveCfg = Debug
+		{2345899C-96F5-4ACD-80C6-0BB480DDDA3D}.Debug|x64.ActiveCfg = Debug
+		{2345899C-96F5-4ACD-80C6-0BB480DDDA3D}.Debug|x64.Build.0 = Debug
+		{2345899C-96F5-4ACD-80C6-0BB480DDDA3D}.Release|Any CPU.ActiveCfg = Release
+		{2345899C-96F5-4ACD-80C6-0BB480DDDA3D}.Release|x64.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
