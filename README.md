@@ -1,7 +1,9 @@
-# PowerPoint Timer add-ins
+# PowerPoint Timer add-in
 
 This plugin for PowerPoint allows to add a timer on a slide. 
 This project has been inspired a lot by [this project](https://github.com/robibobi/powerpoint-timer) by Robibobi
+
+![Demo](doc/demo.gif "Demo PowerPoint timer")
 
 I have just added a couple of features:
 
