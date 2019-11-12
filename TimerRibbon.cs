@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Drawing;
+using System.Linq;
 using Microsoft.Office.Core;
 using Microsoft.Office.Tools.Ribbon;
 using Microsoft.Office.Interop.PowerPoint;
@@ -23,9 +24,9 @@ namespace PowerPointTimer
                     2, 2, 120, 45);
 
                 textBoxCounter.TextFrame.TextRange.Text = Constants.DefaultTimerValue;
-                //textBoxCounter.TextFrame.TextRange.Font.Size = 40;
                 textBoxCounter.Tags.Add(Constants.TimerTag, Constants.TimerTagValue);
-
+                textBoxCounter.TextFrame.TextRange.Font.Color.RGB = ColorTranslator.ToOle(Color.Black);
+                // Hide it
                 textBoxCounter.Visible = MsoTriState.msoFalse;
 
                 var textBoxLauncher = currentSlide.Shapes.AddTextbox(
@@ -34,6 +35,7 @@ namespace PowerPointTimer
 
                 textBoxLauncher.TextFrame.TextRange.Text = Constants.DefaultTimerValue;
                 textBoxLauncher.TextFrame.TextRange.Font.Size = 40;
+                textBoxLauncher.TextFrame.TextRange.Font.Color.RGB = ColorTranslator.ToOle(Color.Black);
                 textBoxLauncher.Tags.Add(Constants.TimerLauncherTag, textBoxCounter.Id.ToString());
 
                 // Add a "bold" animation to triggers the countdown
