@@ -1,19 +1,26 @@
 ﻿using System;
+using System.Linq;
 using System.Drawing;
 using System.Globalization;
 using System.Security.Policy;
 using System.Timers;
 using Microsoft.Office.Interop.PowerPoint;
+using System.Diagnostics;
 
 namespace PowerPointTimer.Core
 {
+    public enum CountDownStatusEnum
+    {
+        Invalid, Initialized, Ready, Running
+    }
+
     public class CountDown
     {
         string timerDuration = String.Empty;
         TimeSpan timerDurationTimeSpan;
         Timer timer;
         Shape timerShape;
-        bool isValid = true;
+        Shape launcherShape;
 
         readonly string empty = " ";
         readonly string noTimeLeft = "00:00";
@@ -26,42 +33,62 @@ namespace PowerPointTimer.Core
 
                 // Get duration
                 timerDuration = timerShape.TextFrame.TextRange.Text;
-                
+
                 // Convert it to TimeSpan
                 if (!TimeSpan.TryParseExact(timerDuration, "mm\\:ss", CultureInfo.InvariantCulture, out timerDurationTimeSpan))
                 {
-                    isValid = false;
+                    Status = CountDownStatusEnum.Invalid;
                 }
             }
-            else isValid = false;
+            else Status = CountDownStatusEnum.Invalid;
         }
 
         public int UnderlyingShapeId { get { return timerShape.Id; } }
 
-        public bool EligibleToStart { get; set; } = false;
+        public CountDownStatusEnum Status { get; set; } = CountDownStatusEnum.Initialized;
 
         public void Start()
         {
-            if (isValid)
+            if (Status == CountDownStatusEnum.Ready)
             {
-                // Stop animation
-                timerShape.AnimationSettings.Animate = Microsoft.Office.Core.MsoTriState.msoFalse;
-                
+                timerShape.Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
+                if (launcherShape != null)
+                    launcherShape.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
+
                 // Start timer and ignite Count down
                 timer = new Timer(Constants.RefreshTimeSpan.TotalMilliseconds);
                 timer.Elapsed += OnTimerElapsed;
                 timer.Start();
+                Status = CountDownStatusEnum.Running;
             }
+        }
+
+        public void Init(Shape LauncherShape)
+        {
+            launcherShape = LauncherShape;
+            // copy style & position from the launcher to the actual countdown
+            timerShape.Width = launcherShape.Width;
+            timerShape.Height = launcherShape.Height;
+            timerShape.Left = launcherShape.Left;
+            timerShape.Top = launcherShape.Top;
+
+            launcherShape.PickUp();
+            timerShape.Apply();
+
+            Status = CountDownStatusEnum.Ready;
         }
 
         public void Stop()
         {
-            // Restore duration & animation
             timerShape.TextFrame.TextRange.Text = timerDuration;
-            timerShape.AnimationSettings.Animate = Microsoft.Office.Core.MsoTriState.msoTrue;
-            
-            // Kill timer object
+
+            // Restore launcher view
+            timerShape.Visible = Microsoft.Office.Core.MsoTriState.msoFalse;
+            if (launcherShape != null)
+                launcherShape.Visible = Microsoft.Office.Core.MsoTriState.msoTrue;
+
             if (timer != null) timer.Dispose();
+            Status = CountDownStatusEnum.Ready;
         }
 
         void OnTimerElapsed(object o, ElapsedEventArgs args)

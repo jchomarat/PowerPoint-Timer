@@ -227,6 +227,9 @@
   <ItemGroup>
     <None Include="Resources\TimerImage.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\RemoveTimerImage .png" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

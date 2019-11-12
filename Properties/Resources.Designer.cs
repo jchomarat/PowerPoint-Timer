@@ -63,6 +63,16 @@ namespace PowerPointTimer.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap RemoveTimerImage {
+            get {
+                object obj = ResourceManager.GetObject("RemoveTimerImage", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap TimerImage {
             get {
                 object obj = ResourceManager.GetObject("TimerImage", resourceCulture);

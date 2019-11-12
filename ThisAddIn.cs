@@ -18,11 +18,12 @@ namespace PowerPointTimer
         {
             Application.SlideShowEnd += OnSlideShowEnd;
             Application.SlideShowNextSlide += OnSlideShowNextSlide;
-            
             Application.SlideShowNextClick += OnSlideShowNextClick;
+            Application.SlideShowOnPrevious += OnSlideShowOnPrevious;
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e) { }
+
 
         /// <summary>
         /// Called each time a slide is loaded. Effect will tell if an effect is eligible on the next click,
@@ -35,17 +36,26 @@ namespace PowerPointTimer
             // Detect which CountDown will start at next click
             if (Effect != null)
             {
-                if (Effect.Shape.Tags[Constants.TimerTag] == Constants.TimerTagValue)
+                if (!string.IsNullOrEmpty(Effect.Shape.Tags[Constants.TimerLauncherTag]))
                 {
+                    // For initialized countdowns, make them ready to rumble for next click
                     runningCountDowns
-                        .First<CountDown>(cd => cd.UnderlyingShapeId == Effect.Shape.Id)
-                        .EligibleToStart = true;
+                        .FirstOrDefault<CountDown>(cd => cd.UnderlyingShapeId == int.Parse(Effect.Shape.Tags[Constants.TimerLauncherTag]))
+                        ?.Init(Effect.Shape);
                 }
             }
             else
             {
-                // Start any eligible to start countdown
-                runningCountDowns.FirstOrDefault<CountDown>(cd => cd.EligibleToStart)?.Start();
+                runningCountDowns.FirstOrDefault<CountDown>(cd => cd.Status == CountDownStatusEnum.Ready)
+                    ?.Start();
+            }
+        }
+
+        void OnSlideShowOnPrevious(SlideShowWindow SlideShowWindow)
+        {
+            if (runningCountDowns.Count > 0)
+            {
+                runningCountDowns.ForEach(cd => cd.Stop());
             }
         }
 
@@ -55,7 +65,7 @@ namespace PowerPointTimer
         /// <param name="Presentation">The current presentation</param>
         void OnSlideShowEnd(Presentation Presentation)
         {
-            stopCountDowns();
+            disposeCountDowns();
         }
 
         /// <summary>
@@ -66,9 +76,9 @@ namespace PowerPointTimer
         void OnSlideShowNextSlide(SlideShowWindow SlideShowWindow)
         {
             // If timers are running, kill them before starting them on the new slide
-            stopCountDowns();
+            disposeCountDowns();
 
-            // If a timer is on the slide, start it!
+            // If a timer is on the slide, init it!
             var currentSlide = SlideShowWindow.View.Slide;
             runningCountDowns = getCountDowns(currentSlide)
                 .Select(shape => new CountDown(shape))
@@ -78,7 +88,7 @@ namespace PowerPointTimer
         /// <summary>
         /// stop all countdowns registered into the runningCountDowns list.
         /// </summary>
-        void stopCountDowns()
+        void disposeCountDowns()
         {
             if (runningCountDowns.Count > 0)
             {
@@ -111,7 +121,7 @@ namespace PowerPointTimer
             this.Startup += new System.EventHandler(ThisAddIn_Startup);
             this.Shutdown += new System.EventHandler(ThisAddIn_Shutdown);
         }
-        
+
         #endregion
     }
 }

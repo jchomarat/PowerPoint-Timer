@@ -1,4 +1,5 @@
-﻿using Microsoft.Office.Core;
+﻿using System.Linq;
+using Microsoft.Office.Core;
 using Microsoft.Office.Tools.Ribbon;
 using Microsoft.Office.Interop.PowerPoint;
 using PowerPointTimer.Core;
@@ -17,19 +18,46 @@ namespace PowerPointTimer
                 Slide currentSlide = app.ActiveWindow.View.Slide;
 
                 // Add timer to this slide
-                var textBox = currentSlide.Shapes.AddTextbox(
+                var textBoxCounter = currentSlide.Shapes.AddTextbox(
                     MsoTextOrientation.msoTextOrientationHorizontal,
                     2, 2, 120, 45);
 
-                textBox.TextFrame.TextRange.Text = Constants.DefaultTimerValue;
-                textBox.TextFrame.TextRange.Font.Size = 40;
-                textBox.Tags.Add(Constants.TimerTag, Constants.TimerTagValue);
-                
-                // Add animation so that the ContDown is activated upon click (like next slide)
-                textBox.AnimationSettings.Animate = MsoTriState.msoTrue;
-                textBox.AnimationSettings.TextLevelEffect = PpTextLevelEffect.ppAnimateByAllLevels;
+                textBoxCounter.TextFrame.TextRange.Text = Constants.DefaultTimerValue;
+                //textBoxCounter.TextFrame.TextRange.Font.Size = 40;
+                textBoxCounter.Tags.Add(Constants.TimerTag, Constants.TimerTagValue);
+
+                textBoxCounter.Visible = MsoTriState.msoFalse;
+
+                var textBoxLauncher = currentSlide.Shapes.AddTextbox(
+                   MsoTextOrientation.msoTextOrientationHorizontal,
+                   10, 10, 120, 45);
+
+                textBoxLauncher.TextFrame.TextRange.Text = Constants.DefaultTimerValue;
+                textBoxLauncher.TextFrame.TextRange.Font.Size = 40;
+                textBoxLauncher.Tags.Add(Constants.TimerLauncherTag, textBoxCounter.Id.ToString());
+
+                // Add a "bold" animation to triggers the countdown
+                currentSlide.TimeLine.MainSequence.AddEffect(textBoxLauncher,
+                    MsoAnimEffect.msoAnimEffectBoldFlash, MsoAnimateByLevel.msoAnimateTextByAllLevels,
+                    MsoAnimTriggerType.msoAnimTriggerMixed);
             }
-            
+
+        }
+
+        private void RemoveTimers_Click(object sender, RibbonControlEventArgs e)
+        {
+            // Loop in the slide to remove all timers (launcher and actual timers)
+            var app = Globals.ThisAddIn.Application;
+            if (app.ActivePresentation.Slides.Count > 0)
+            {
+                // Get current slide
+                Slide currentSlide = app.ActiveWindow.View.Slide;
+
+                currentSlide.Shapes.OfType<Microsoft.Office.Interop.PowerPoint.Shape>()
+                    .Where(s => s.Tags[Constants.TimerTag] == Constants.TimerTagValue || s.Tags[Constants.TimerLauncherTag] != "")
+                    .ToList()
+                    .ForEach(shape => shape.Delete());
+            }
         }
     }
 }

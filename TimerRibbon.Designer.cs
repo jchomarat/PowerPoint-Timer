@@ -37,6 +37,7 @@
             this.tab1 = this.Factory.CreateRibbonTab();
             this.group1 = this.Factory.CreateRibbonGroup();
             this.AddTimer = this.Factory.CreateRibbonButton();
+            this.RemoveTimers = this.Factory.CreateRibbonButton();
             this.tab1.SuspendLayout();
             this.group1.SuspendLayout();
             this.SuspendLayout();
@@ -51,6 +52,7 @@
             // group1
             // 
             this.group1.Items.Add(this.AddTimer);
+            this.group1.Items.Add(this.RemoveTimers);
             this.group1.Label = "Microsoft";
             this.group1.Name = "group1";
             // 
@@ -58,10 +60,19 @@
             // 
             this.AddTimer.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.AddTimer.Image = global::PowerPointTimer.Properties.Resources.TimerImage;
-            this.AddTimer.Label = "Digital timer";
+            this.AddTimer.Label = "Add timer";
             this.AddTimer.Name = "AddTimer";
             this.AddTimer.ShowImage = true;
             this.AddTimer.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.AddTimer_Click);
+            // 
+            // RemoveTimers
+            // 
+            this.RemoveTimers.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
+            this.RemoveTimers.Image = global::PowerPointTimer.Properties.Resources.RemoveTimerImage;
+            this.RemoveTimers.Label = "Remove timers";
+            this.RemoveTimers.Name = "RemoveTimers";
+            this.RemoveTimers.ShowImage = true;
+            this.RemoveTimers.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.RemoveTimers_Click);
             // 
             // TimerRibbon
             // 
@@ -81,6 +92,7 @@
         internal Microsoft.Office.Tools.Ribbon.RibbonTab tab1;
         internal Microsoft.Office.Tools.Ribbon.RibbonGroup group1;
         internal Microsoft.Office.Tools.Ribbon.RibbonButton AddTimer;
+        internal Microsoft.Office.Tools.Ribbon.RibbonButton RemoveTimers;
     }
 
     partial class ThisRibbonCollection
