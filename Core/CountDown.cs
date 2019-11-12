@@ -27,20 +27,7 @@ namespace PowerPointTimer.Core
 
         public CountDown(Shape TimerShape)
         {
-            if (TimerShape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
-            {
-                timerShape = TimerShape;
-
-                // Get duration
-                timerDuration = timerShape.TextFrame.TextRange.Text;
-
-                // Convert it to TimeSpan
-                if (!TimeSpan.TryParseExact(timerDuration, "mm\\:ss", CultureInfo.InvariantCulture, out timerDurationTimeSpan))
-                {
-                    Status = CountDownStatusEnum.Invalid;
-                }
-            }
-            else Status = CountDownStatusEnum.Invalid;
+            timerShape = TimerShape;
         }
 
         public int UnderlyingShapeId { get { return timerShape.Id; } }
@@ -66,16 +53,36 @@ namespace PowerPointTimer.Core
         public void Init(Shape LauncherShape)
         {
             launcherShape = LauncherShape;
-            // copy style & position from the launcher to the actual countdown
-            timerShape.Width = launcherShape.Width;
-            timerShape.Height = launcherShape.Height;
-            timerShape.Left = launcherShape.Left;
-            timerShape.Top = launcherShape.Top;
 
-            launcherShape.PickUp();
-            timerShape.Apply();
+            if (launcherShape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
+            {
+                // Copy duration from launcher to actual countdown
+                timerShape.TextFrame.TextRange.Text = launcherShape.TextFrame.TextRange.Text;
 
-            Status = CountDownStatusEnum.Ready;
+                // Get duration
+                timerDuration = timerShape.TextFrame.TextRange.Text;
+
+                // Convert it to TimeSpan
+                if (!TimeSpan.TryParseExact(timerDuration, "mm\\:ss", CultureInfo.InvariantCulture, out timerDurationTimeSpan))
+                {
+                    Status = CountDownStatusEnum.Invalid;
+                }
+                else
+                {
+                    launcherShape = LauncherShape;
+                    // copy style & position from the launcher to the actual countdown
+                    timerShape.Width = launcherShape.Width;
+                    timerShape.Height = launcherShape.Height;
+                    timerShape.Left = launcherShape.Left;
+                    timerShape.Top = launcherShape.Top;
+
+                    launcherShape.PickUp();
+                    timerShape.Apply();
+
+                    Status = CountDownStatusEnum.Ready;
+                }
+            }
+            else Status = CountDownStatusEnum.Invalid;
         }
 
         public void Stop()
