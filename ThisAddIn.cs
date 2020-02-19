@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using Microsoft.Office.Interop.PowerPoint;
 using PowerPointTimer.Core;
 
@@ -20,10 +22,14 @@ namespace PowerPointTimer
             Application.SlideShowNextSlide += OnSlideShowNextSlide;
             Application.SlideShowNextClick += OnSlideShowNextClick;
             Application.SlideShowOnPrevious += OnSlideShowOnPrevious;
+            //Application.WindowSelectionChange += OnWindowSelectionChange;
         }
 
         private void ThisAddIn_Shutdown(object sender, System.EventArgs e) { }
 
+        void OnWindowSelectionChange(Selection selection)
+        {
+        }
 
         /// <summary>
         /// Called each time a slide is loaded. Effect will tell if an effect is eligible on the next click,
@@ -36,12 +42,10 @@ namespace PowerPointTimer
             // Detect which CountDown will start at next click
             if (Effect != null)
             {
-                if (!string.IsNullOrEmpty(Effect.Shape.Tags[Constants.TimerLauncherTag]))
+                if (Effect.Shape.Tags[Constants.TimerLauncher] == Constants.TimerLauncherValue)
                 {
-                    // For initialized countdowns, make them ready to rumble for next click
                     runningCountDowns
-                        .FirstOrDefault<CountDown>(cd => cd.UnderlyingShapeId == int.Parse(Effect.Shape.Tags[Constants.TimerLauncherTag]))
-                        ?.Init(Effect.Shape);
+                        .FirstOrDefault<CountDown>(cd => cd.UnderlyingLauncherShapeId == Effect.Shape.Id)?.Init();
                 }
             }
             else
@@ -106,7 +110,7 @@ namespace PowerPointTimer
         {
             return slide.Shapes.OfType<Shape>().Where(s =>
             {
-                return s.Tags[Constants.TimerTag] == Constants.TimerTagValue;
+                return s.Tags[Constants.TimerGroup] == Constants.TimerGroupValue;
             });
         }
 

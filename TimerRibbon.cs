@@ -1,9 +1,10 @@
 ﻿using System.Drawing;
 using System.Linq;
-using Microsoft.Office.Core;
+using MOO = Microsoft.Office.Core;
 using Microsoft.Office.Tools.Ribbon;
 using Microsoft.Office.Interop.PowerPoint;
 using PowerPointTimer.Core;
+using System.Threading;
 
 namespace PowerPointTimer
 {
@@ -20,27 +21,33 @@ namespace PowerPointTimer
 
                 // Add timer to this slide
                 var textBoxCounter = currentSlide.Shapes.AddTextbox(
-                    MsoTextOrientation.msoTextOrientationHorizontal,
+                    MOO.MsoTextOrientation.msoTextOrientationHorizontal,
                     2, 2, 120, 45);
 
                 textBoxCounter.TextFrame.TextRange.Text = Constants.DefaultTimerValue;
-                textBoxCounter.Tags.Add(Constants.TimerTag, Constants.TimerTagValue);
+                textBoxCounter.Tags.Add(Constants.TimerCounter, Constants.TimerCounterValue);
                 textBoxCounter.TextFrame.TextRange.Font.Color.RGB = ColorTranslator.ToOle(Color.Black);
                 // Hide it
-                textBoxCounter.Visible = MsoTriState.msoFalse;
+                textBoxCounter.Visible = MOO.MsoTriState.msoFalse;
 
                 var textBoxLauncher = currentSlide.Shapes.AddTextbox(
-                   MsoTextOrientation.msoTextOrientationHorizontal,
+                   MOO.MsoTextOrientation.msoTextOrientationHorizontal,
                    10, 10, 120, 45);
 
                 textBoxLauncher.TextFrame.TextRange.Text = Constants.DefaultTimerValue;
                 textBoxLauncher.TextFrame.TextRange.Font.Size = 40;
                 textBoxLauncher.TextFrame.TextRange.Font.Color.RGB = ColorTranslator.ToOle(Color.Black);
-                textBoxLauncher.Tags.Add(Constants.TimerLauncherTag, textBoxCounter.Id.ToString());
+                textBoxLauncher.Tags.Add(Constants.TimerLauncher, Constants.TimerLauncherValue);
+
+                // Group both Shapes
+                var range = currentSlide.Shapes.Range(new string[] { textBoxLauncher.Name, textBoxCounter.Name });
+                var timerShape = range.Group();
+
+                timerShape.Tags.Add(Constants.TimerGroup, Constants.TimerGroupValue);
 
                 // Add a "bold" animation to triggers the countdown
-                currentSlide.TimeLine.MainSequence.AddEffect(textBoxLauncher,
-                    MsoAnimEffect.msoAnimEffectBoldFlash, MsoAnimateByLevel.msoAnimateTextByAllLevels,
+                currentSlide.TimeLine.MainSequence.AddEffect(timerShape.GroupItems.OfType<Shape>().FirstOrDefault<Shape>(s => s.Tags[Constants.TimerLauncher] == Constants.TimerLauncherValue),
+                    MsoAnimEffect.msoAnimEffectBoldFlash, MsoAnimateByLevel.msoAnimateLevelNone,
                     MsoAnimTriggerType.msoAnimTriggerMixed);
             }
 
@@ -48,7 +55,7 @@ namespace PowerPointTimer
 
         private void RemoveTimers_Click(object sender, RibbonControlEventArgs e)
         {
-            // Loop in the slide to remove all timers (launcher and actual timers)
+            // Loop in the slide to remove all timers (launcher and actual timers stored in a group)
             var app = Globals.ThisAddIn.Application;
             if (app.ActivePresentation.Slides.Count > 0)
             {
@@ -56,7 +63,7 @@ namespace PowerPointTimer
                 Slide currentSlide = app.ActiveWindow.View.Slide;
 
                 currentSlide.Shapes.OfType<Microsoft.Office.Interop.PowerPoint.Shape>()
-                    .Where(s => s.Tags[Constants.TimerTag] == Constants.TimerTagValue || s.Tags[Constants.TimerLauncherTag] != "")
+                    .Where(s => s.Tags[Constants.TimerGroup] == Constants.TimerGroupValue)
                     .ToList()
                     .ForEach(shape => shape.Delete());
             }

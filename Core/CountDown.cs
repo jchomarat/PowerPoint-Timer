@@ -19,18 +19,28 @@ namespace PowerPointTimer.Core
         string timerDuration = String.Empty;
         TimeSpan timerDurationTimeSpan;
         Timer timer;
+        Shape timerShapeGroup;
         Shape timerShape;
         Shape launcherShape;
 
         readonly string empty = " ";
         readonly string noTimeLeft = "00:00";
 
-        public CountDown(Shape TimerShape)
+        public CountDown(Shape TimerShapeGroup)
         {
-            timerShape = TimerShape;
+            timerShapeGroup = TimerShapeGroup;
+            
+            // extract timerShape from the group
+            timerShape = timerShapeGroup.GroupItems.OfType<Shape>()
+                    .FirstOrDefault<Shape>(s => s.Tags[Constants.TimerCounter] == Constants.TimerCounterValue);
+
+            launcherShape = timerShapeGroup.GroupItems.OfType<Shape>()
+                    .FirstOrDefault<Shape>(s => s.Tags[Constants.TimerLauncher] == Constants.TimerLauncherValue);
         }
 
-        public int UnderlyingShapeId { get { return timerShape.Id; } }
+        public int UnderlyingGroupShapeId { get { return timerShapeGroup.Id; } }
+
+        public int UnderlyingLauncherShapeId { get { return launcherShape.Id; } }
 
         public CountDownStatusEnum Status { get; set; } = CountDownStatusEnum.Initialized;
 
@@ -50,10 +60,8 @@ namespace PowerPointTimer.Core
             }
         }
 
-        public void Init(Shape LauncherShape)
+        public void Init()
         {
-            launcherShape = LauncherShape;
-
             if (launcherShape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
             {
                 // Copy duration from launcher to actual countdown
@@ -69,7 +77,6 @@ namespace PowerPointTimer.Core
                 }
                 else
                 {
-                    launcherShape = LauncherShape;
                     // copy style & position from the launcher to the actual countdown
                     timerShape.Width = launcherShape.Width;
                     timerShape.Height = launcherShape.Height;
